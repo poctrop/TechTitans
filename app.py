@@ -77,6 +77,7 @@ def delete_many_documents(doc):
 
 ###mihle
 
+###Ndemo
 show dbs
 
 # -------------------------

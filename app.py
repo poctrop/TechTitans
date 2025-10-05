@@ -74,9 +74,10 @@ def delete_one_document(doc):
 #function which deletes all document from the collection given specified filter from user
 def delete_many_documents(doc):
     db.users.delete_many(doc)
-    
-    
 
+###mihle
+
+show dbs
 
 # -------------------------
 # Menu System

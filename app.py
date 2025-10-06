@@ -8,6 +8,7 @@ import pprint
 client = MongoClient("mongodb+srv://TechTitans_db_user:hello@techtitanssocialmediadb.nhwgwlf.mongodb.net/?retryWrites=true&w=majority&appName=TechTitansSocialMediaDB" )  # adjust if using Atlas
 db = client["social_media_db"]      # replace with your chosen DB name
 users = db["users"]    # example collection
+posts = db["posts"]
 
 pp = pprint.PrettyPrinter(indent=2)
 
@@ -18,7 +19,7 @@ pp = pprint.PrettyPrinter(indent=2)
 
 #function which uses MongoDB's insert query (only inserts 1 document)
 def create_document(doc):
-    db.users.insert_one(doc)
+   db.users.insert_one(doc)
 
 #function which uses MongoDB's insert many query
 def create_many(doc):
@@ -58,13 +59,13 @@ def update_one_document():
 
 #function which reads all the documents and only returns username
 def read_all_documents():
-    curs = db.users.find({},{"_id":0,"username":1})
+    curs = db.users.find({})
     for doc in curs:
         print(doc,"\n")
 
 # this function reads and finds one document and only returns username
 def read_one_document():
-    curs = db.users.find_one({},{"_id":0,"username":1})
+    curs = db.users.find_one({})
     print(curs)
 
 #function which deletes 1 document from the collection given specified filter from user
@@ -77,25 +78,107 @@ def delete_many_documents(doc):
 
 ###mihle
 
-###Ndemo
-show dbs
 
+##Ndemo
+##Advanced query
+def condition_find():
+    curs = db.posts.find({"$and" : [{"username" : "diana33"},{"tags" : {"$in": ["feel"]}}]}, {"_id" :0 ,"content": 1})
+    for doc in curs:
+        print(doc,"\n")
+#ndemo 
+#array functions
+def rem_arr():
+    db.posts.update_many(
+        {"username":"diana33"},
+        {"$pull" : {"comment" : {"$in" : [0]}}}
+    )
+
+def output_cursor(cursor):
+  for doc in cursor:
+    print(doc)
+## aggregation pipelines
+def check_likes():
+    curs = db.posts.aggregate(
+        [
+            {"$match" : {"username" : "diana33"}},
+            {"$project" : {"_id" : 0, "username" : "diana33", "num_likes" : {"$size" : "$likes"}, "num_comments" : {"$size" : "$comments"}}},
+        ]
+    )
+    output_cursor(curs)
+
+
+#mihle
+#advanced query
+#finds all of michael48s posts or all posts with tech/new tags from any user
+def find_michael_or_tags():
+    curs = db.posts.find({
+            "$or": [ {"username": "michael48"},]},{"_id": 0, "username": 1, "title": 1, "tags": 1})
+    
+    for doc in curs:
+        print(doc, "\n")
+
+#array functions
+#removes an element in array 28 in friends field, users collection
+def rem_arr():
+    db.users.update_many({"username":"mquinn"},
+                          {"$pull" : {"friends": {"$in" : [28]}}})
+
+def output_cursor(cursor):
+  for doc in cursor:
+    print(doc)
+
+rem_arr()
+
+##function that add to an array in users collection, in friends field
+def add_arr():
+    db.users.update_one({"username": "davidfrench"}, {"$push" : {"friends": "ObjectId('68d6f41c00af4cdlae753b9')"}})
+
+
+def output_cursor(cursor):
+  for doc in cursor:
+    print(doc)
+
+add_arr()
+
+def remove_arr():
+    db.users.update_one({"username": "davidfrench"}, {"$pull": {"friends":24}})
+
+
+def output_cursor(cursor):
+  for doc in cursor:
+    print(doc)
+
+remove_arr()
+
+#aggregation pipelines
+def group_by_username():
+    curs = db.users.aggregate([{"$match": {"username": "mquinn"}},{"$group": {
+                "_id": "$username",  
+                "total_friends": {"$sum": {"$size": "$friends"}},
+                "total_activities": {"$sum": {"$size": "$recent_activity"}},
+                "user_count": {"$sum": 1}}}])
+    output_cursor(curs)
 # -------------------------
 # Menu System
 # -------------------------
 
 def menu():
     while True:
-        print("\n--- MongoDB Project Menu ---")
+
+        check_likes()
+        rem_arr()
+
+        print("\n--- MongoDB Project Megnu ---")
         print("1. Create Document")
         print("2. Read All Documents")
         print("3. Update Document")
         print("4. Delete Document")
         print("5. Quit")
 
-        choice = input("Enter choice: ")
-    
+        choice = input("Enter choice: ") 
+        
         if choice == "1":
+            
             numChoice = (int(input("enter number of documents: ")))
             if numChoice >= 2:
 
